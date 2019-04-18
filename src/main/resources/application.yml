@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    url: jdbc:mysql://127.0.0.1/sell?serverTimezone=Hongkong&useUnicode=true&characterEncoding=utf-8&useSSL=false
+    password: 123456
+  jpa:
+    show-sql: true
