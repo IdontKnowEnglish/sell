@@ -9,5 +9,6 @@ import java.util.List;
  * @author 75839
  */
 public interface ProductCategoryRepository extends JpaRepository<ProductCategory,Integer> {
+
     List<ProductCategory>findByCategoryTypeIn(List<Integer> categoryTypeList);
 }
