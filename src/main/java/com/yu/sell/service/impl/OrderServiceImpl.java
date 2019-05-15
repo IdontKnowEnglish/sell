@@ -27,7 +27,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -153,31 +152,48 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public OrderDto finish(OrderDto orderDto) {
-        return null;
+        //判断订单状态
+        if(!OrderStatusEnum.NEW.getCode().equals( orderDto.getOrderStatus())){
+            log.error("【完结订单】订单状态不正确，orderId={},orderStatus={}",orderDto.getOrderId(),orderDto.getOrderStatus());
+            throw new SellException(ResultEnum.ORDER_STATUS_ERROR);
+        }
+        //修改状态
+        orderDto.setOrderStatus(OrderStatusEnum.FINISH.getCode());
+        OrderMaster orderMaster = new OrderMaster();
+        BeanUtils.copyProperties(orderDto,orderMaster);
+        OrderMaster updateResult = orderMasterRepository.save(orderMaster);
+        if (updateResult == null){
+            log.error("【完结订单】更新失败，orderMaster:{}",orderMaster);
+            throw new SellException(ResultEnum.ORDER_UPDATE_ERROR);
+        }
+        return orderDto;
     }
 
     @Override
+    @Transactional
     public OrderDto paid(OrderDto orderDto) {
-        return null;
-    }
-
-    public static void main(String[] args) {
-        List<OrderDetail> orderDetailList =new ArrayList<>();
-        OrderDetail orderDetail = new OrderDetail();
-        orderDetail.setProductPrice(new BigDecimal(5));
-        orderDetail.setProductQuantity(2);
-        orderDetailList.add(orderDetail);
-        OrderDetail orderDetail1 = new OrderDetail();
-        orderDetail1.setProductPrice(new BigDecimal(5));
-        orderDetail1.setProductQuantity(2);
-        orderDetailList.add(orderDetail);
-        BigDecimal orderAmount = new BigDecimal(String.valueOf(BigDecimal.ZERO));
-        orderDetailList.stream().forEach(orderDetail3 -> {
-            BigDecimal orderAmount1 = new BigDecimal(String.valueOf(BigDecimal.ZERO));
-            orderAmount1 = orderDetail.getProductPrice().multiply(new BigDecimal(orderDetail.getProductQuantity())).add(orderAmount1);
-            System.out.println(orderAmount1);
-        });
-
+        //判断订单状态
+        if(!OrderStatusEnum.NEW.getCode().equals( orderDto.getPayStatus())){
+            log.error("【订单支付成功】订单状态不正确，orderId={},orderStatus={}",orderDto.getOrderId(),orderDto.getOrderStatus());
+            throw new SellException(ResultEnum.ORDER_STATUS_ERROR);
+        }
+        //判断支付状态
+        if(!PayStatusEnum.WAIT.getCode().equals(orderDto.getPayStatus())){
+            log.error("【订单支付成功】支付状态不正确,orderId={},payStatus={}",orderDto.getOrderId(),orderDto.getPayStatus());
+            throw new SellException(ResultEnum.PAY_STATUS_ERROR);
+        }
+        //修改支付状态
+        //修改状态
+        orderDto.setPayStatus(PayStatusEnum.FINISH.getCode());
+        OrderMaster orderMaster = new OrderMaster();
+        BeanUtils.copyProperties(orderDto,orderMaster);
+        OrderMaster updateResult = orderMasterRepository.save(orderMaster);
+        if (updateResult == null){
+            log.error("【订单支付成功】更新失败，orderMaster:{}",orderMaster);
+            throw new SellException(ResultEnum.ORDER_UPDATE_ERROR);
+        }
+        return orderDto;
     }
 }

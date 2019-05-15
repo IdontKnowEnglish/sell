@@ -3,6 +3,7 @@ package com.yu.sell.service.impl;
 import com.yu.sell.dataobject.OrderDetail;
 import com.yu.sell.dto.OrderDto;
 import com.yu.sell.enums.OrderStatusEnum;
+import com.yu.sell.enums.PayStatusEnum;
 import com.yu.sell.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -16,8 +17,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * @Author: yushizhang
@@ -81,18 +80,21 @@ public class OrderServiceImplTest {
     public void cancel() throws Exception{
         OrderDto orderDto = orderService.findOne("1556886740850668457");
         OrderDto result = orderService.cancel(orderDto);
-        Assert.assertNotEquals(OrderStatusEnum.CANCEL.getCode(),result.getOrderStatus());
+        Assert.assertEquals(OrderStatusEnum.CANCEL.getCode(),result.getOrderStatus());
     }
 
     @Test
     public void finish() throws Exception{
+        OrderDto orderDto = orderService.findOne("1556890750181681108");
+        OrderDto result = orderService.finish(orderDto);
+        Assert.assertEquals(OrderStatusEnum.FINISH.getCode(),result.getOrderStatus());
     }
 
     @Test
     public void paid() throws Exception{
+        OrderDto orderDto = orderService.findOne("1556890750181681108");
+        OrderDto result = orderService.paid(orderDto);
+        Assert.assertEquals(PayStatusEnum.FINISH.getCode(),result.getOrderStatus());
     }
 
-    @Test
-    public void main() throws Exception{
-    }
 }
