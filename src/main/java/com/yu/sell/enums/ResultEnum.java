@@ -11,6 +11,11 @@ import lombok.Getter;
 public enum  ResultEnum {
 
     /**
+     * 传入参数不正确
+     */
+    PAPAM_ERROR(1,"参数不正确"),
+
+    /**
      * 商品不存在
      */
     PRODUCT_NOT_EXIST(10,"商品不存在"),
@@ -28,6 +33,8 @@ public enum  ResultEnum {
     ORDER_DETAIL_EMPTY(16,"订单详情为空"),
 
     PAY_STATUS_ERROR(17,"订单支付状态为空"),
+
+    CAET_EMPTY(18,"购物车为空")
     ;
     private Integer code;
 
