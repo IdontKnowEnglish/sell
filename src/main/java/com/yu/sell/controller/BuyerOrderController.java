@@ -10,14 +10,16 @@ import com.yu.sell.utils.ResultVOUtil;
 import com.yu.sell.vo.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,7 +28,7 @@ import java.util.Map;
  * @Version 1.0
  */
 @RestController
-@RequestMapping("buyer/order")
+@RequestMapping("/buyer/order")
 @Slf4j
 public class BuyerOrderController {
     @Autowired
@@ -53,10 +55,35 @@ public class BuyerOrderController {
     }
 
     //订单列表
+    @GetMapping("/list")
+    public ResultVO<List<OrderDto>> list(@RequestParam("openid") String openid,
+                                         @RequestParam(value = "page",defaultValue = "0") Integer page,
+                                         @RequestParam(value = "size",defaultValue = "10") Integer size ){
+        if(StringUtils.isEmpty(openid)){
+            log.error("【查询订单列表】openid为空");
+            throw new SellException(ResultEnum.PAPAM_ERROR);
+        }
+        PageRequest request = new PageRequest(page,size);
+        Page<OrderDto> orderDtoPage = orderService.findList(openid,request);
+        return ResultVOUtil.success(orderDtoPage.getContent());
+    }
 
     //订单详情
-
+    @GetMapping("/detail")
+    public ResultVO<OrderDto> detail(@RequestParam("openid") String openid,
+                                     @RequestParam("orderid")String orderId){
+        //TODO 不安全的做法改进
+        OrderDto orderDto = orderService.findOne(orderId);
+        return ResultVOUtil.success(orderDto);
+    }
     //取消订单
-
+    @PostMapping("/cancel")
+    public ResultVO cancel(@RequestParam("openid") String openid,
+                           @RequestParam("orderid")String orderId){
+        //TODO 不安全改进
+        OrderDto orderDto = orderService.findOne(orderId);
+        orderService.cancel(orderDto);
+        return ResultVOUtil.success();
+    }
 
 }
